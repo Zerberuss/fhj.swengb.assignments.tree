@@ -1,8 +1,9 @@
+/*
+
 package fhj.swengb.assignments.tree.aschneider
 
+import java.rmi.activation.ActivationGroup_Stub
 import javafx.scene.paint.Color
-
-import com.sun.javafx.geom.AreaOp.AddOp
 
 import scala.math.BigDecimal.RoundingMode
 import scala.util.Random
@@ -41,14 +42,15 @@ object Graph {
     * @param convert a converter function
     * @return
     */
-  def traverse[A, B](tree: Tree[A])(convert: A => B): Seq[B] = tree match{
-    case Node(values) => Seq(convert(values))     //wenn node convertieren und zu seq machen
-    case Branch(left, right) => traverse(left)(convert)   //sonst rechts, links gehen
-                                traverse(right)(convert)
 
+  def traverse[A, B](tree: Tree[A])(convert: A => B): Seq[B] = {
+    def map[A, B](t: Tree[A],acc: Seq[B])(convert: A => B): Seq[B] = t match {
+      case Node(v) => convert(v) +: acc
+      case Branch(l,r) => map(l,acc)(convert) ++ acc ++ map(r,acc)(convert)
+    }
+    map(tree,acc = Nil)(convert)
   }
 
-  //lauter Points
 
   /**
     * Creates a tree graph.
@@ -72,15 +74,17 @@ object Graph {
               colorMap: Map[Int, Color] = Graph.colorMap): Tree[L2D] = {
     assert(treeDepth <= colorMap.size, s"Treedepth higher than color mappings - bailing out ...")
 
-    def createGraph(start:L2D, currentTreeDepth: Int): Tree[L2D] = currentTreeDepth match {
+    def createGraph(start:L2D, acc: Int): Tree[L2D] = acc match {
       case root if treeDepth == 0 => Node(start)
-      case nodes if currentTreeDepth == treeDepth => ???
-      case _ => ???
+      case nodes if acc == treeDepth => Branch(Node(start),Branch(Node(start.left(factor,angle,colorMap(acc-1))),Node(start.right(factor,angle,colorMap(acc-1)))))
+      case _ => Branch(Node(start),Branch(createGraph(start.left(factor,angle,colorMap(acc-1)),acc+1),createGraph(start.right(factor,angle,colorMap(acc-1)),acc+1)))
     }
 
-    val currentTreeDepth
-    createGraph(L2D(start,initialAngle,length,colorMap(currentTreeDepth-1)),1)
+    val acc = 1
+    val p = L2D(start,initialAngle,length,colorMap(acc-1))
 
+    createGraph(p,acc)
+  }
 
 }
 
@@ -92,9 +96,7 @@ object MathUtil {
     * @param value  a double value
     * @return
     */
-  def round(value: Double): Double = {
-    ((value*1000).round) / 1000.toDouble
-  }
+  def round(value: Double): Double = (value * 1000).round / 1000.toDouble
 
   /**
     * turns an angle given in degrees to a value in radiants.
@@ -102,9 +104,7 @@ object MathUtil {
     * @param angle
     * @return
     */
-  def toRadiants(angle: AngleInDegrees): AngleInRadiants = {
-   angle.toRadians
-  }
+  def toRadiants(angle: AngleInDegrees): AngleInRadiants = angle.toRadians
 }
 
 
@@ -123,10 +123,9 @@ object L2D {
     * @return
     */
   def apply(start: Pt2D, angle: AngleInDegrees, length: Double, color: Color): L2D = {
-    val endX = round( Math.cos(toRadiants(angle) )*length + start.x)
-    val endY = round( Math.sin(toRadiants(angle) )*length + start.y)
-    val end = Pt2D( endX, endY )
-
+    val endx = round(Math.cos(toRadiants(angle))*length + start.x)
+    val endy = round(Math.sin(toRadiants(angle))*length + start.y)
+    val end = Pt2D(endx,endy)
     L2D(start,end,color)
   }
 
@@ -167,3 +166,4 @@ case class L2D(start: Pt2D, end: Pt2D, color: Color) {
 
 }
 
+*/

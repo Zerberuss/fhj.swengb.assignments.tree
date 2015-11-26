@@ -43,7 +43,7 @@ object Graph {
     */
   def traverse[A, B](tree: Tree[A])(convert: A => B): Seq[B] = tree match{
     case Node(values) => Seq(convert(values))     //wenn node convertieren und zu seq machen
-    case Branch(left, right) => traverse(left)(convert)   //sonst rechts, links gehen
+    case Branch(left, right) => traverse(left)(convert)
                                 traverse(right)(convert)
 
   }
@@ -72,16 +72,15 @@ object Graph {
               colorMap: Map[Int, Color] = Graph.colorMap): Tree[L2D] = {
     assert(treeDepth <= colorMap.size, s"Treedepth higher than color mappings - bailing out ...")
 
-    def createGraph(start:L2D, currentTreeDepth: Int): Tree[L2D] = currentTreeDepth match {
+    def convertToGraph(start:L2D, currentTreeDepth: Int): Tree[L2D] = currentTreeDepth match {
       case root if treeDepth == 0 => Node(start)
-      case nodes if currentTreeDepth == treeDepth => ???
-      case _ => ???
+      case nodes if currentTreeDepth == treeDepth => Branch(Node(start), Branch(Node(start.left(factor, angle, colorMap(currentTreeDepth - 1))), Node(start.right(factor, angle, colorMap(currentTreeDepth - 1)))))
+      case _ => Branch(Node(start), Branch(convertToGraph(start.left(factor, angle, colorMap(currentTreeDepth - 1)), currentTreeDepth + 1), convertToGraph(start.right(factor, angle, colorMap(currentTreeDepth - 1)), currentTreeDepth + 1)))
     }
 
-    val currentTreeDepth
-    createGraph(L2D(start,initialAngle,length,colorMap(currentTreeDepth-1)),1)
-
-
+    val currentTreeDepth = 1
+    convertToGraph(L2D(start,initialAngle,length,colorMap(currentTreeDepth-1)),1)
+  }
 }
 
 object MathUtil {

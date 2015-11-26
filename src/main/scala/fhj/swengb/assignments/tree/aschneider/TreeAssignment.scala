@@ -78,7 +78,8 @@ object Graph {
     }
 
     val currentTreeDepth = 1
-    convertToGraph(L2D(start,initialAngle,length,colorMap(currentTreeDepth-1)),1)
+    val startParameters = L2D(start,initialAngle,length,colorMap(currentTreeDepth-1))
+    convertToGraph(startParameters,1)
   }
 }
 
